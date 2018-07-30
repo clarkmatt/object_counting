@@ -1,14 +1,18 @@
 import numpy as np
 from scipy.stats import norm
 
-def build_density_map(image, locations, sigma=3):
+def build_density_map(image, locations, sigma=3, scale=1.0):
     """
     Builds a density map given an image and the (x,y) locations of objects of interest.
     Input:
         image: the numpy array image for which we are building a density map
         locations: a list of (x,y) locations of objects in the image
         sigma: the standard deviation of the normal distribution around each object
+        scale: a number between 0 and 1 which reduces the resolution of the output density map
     """
+
+    #The density map resolution can be reduced but not increased
+    assert(0 < scale <= 1)
 
     h, w = image.shape
 

@@ -1,13 +1,10 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 import scipy.io
+from skimage import io
 import os
 import numpy as np
 from utils import build_density_map
-
-label_path = '/Users/matt/Projects/tellus_robotics/datasets/ucsdpeds/vidf-cvpr/'
-image_path = '/Users/matt/Projects/tellus_robotics/datasets/ucsdpeds/ucsdpeds/vidf/'
-
 
 class UCSDPedsDataset(Dataset):
     def __init__(self, set_type, label_path='vidf-cvpr/', image_path='ucscpeds/vidf/'):
@@ -34,9 +31,28 @@ class UCSDPedsDataset(Dataset):
 
     def __getitem__(self, idx):
         data = self.image_data[idx]
-        ped_locations = self.label_data[0,0]['loc'][0,0][:,:-1]
+        ped_locations = self.label_data[idx][0,0]['loc'][:,:-1]
+
+        # build ground truth density map for given image
         ground_truth = build_density_map(data, ped_locations)
 
         return data, ground_truth 
 
-dataset = UCSDPedsDataset('training')
+if __name__=="__main__":
+
+    label_path = '/Users/matt/Projects/tellus_robotics/datasets/ucsdpeds/vidf-cvpr/'
+    image_path = '/Users/matt/Projects/tellus_robotics/datasets/ucsdpeds/ucsdpeds/vidf/'
+
+    dataset = UCSDPedsDataset('training', label_path=label_path, image_path=image_path)
+    data, ground_truth = dataset[0]
+
+    # Plot results to verify data and ground_truth density map match
+    import matplotlib.pyplot as plt
+    plt.figure(1)
+    density_plot = plt.imshow(ground_truth)
+    plt.figure(2)
+    original = plt.imshow(data)
+    plt.show()
+
+    
+
