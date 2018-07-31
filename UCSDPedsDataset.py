@@ -24,6 +24,15 @@ class UCSDPedsDataset(Dataset):
                                 if image_file[-4:]=='.png' ])
         self.image_data = np.array([ io.imread(os.path.join(image_path, image_file)) for image_file in image_files ])
 
+        # The orginal paper uses frames 601-1400 as training data, the remaining data is for testing
+        if set_type is "training":
+            frame_indices = np.arange(600,1400)
+        else:
+            frame_indices = np.concatenate((np.arange(600),np.arange(1400,2000)))
+
+        self.label_data = self.label_data[frame_indices]
+        self.image_data = self.image_data[frame_indices]
+
     def __len__(self):
         return len(self.label_data)
 
@@ -52,9 +61,9 @@ if __name__=="__main__":
     # Plot results to verify data and ground_truth density map match
     import matplotlib.pyplot as plt
     plt.figure(1)
-    density_plot = plt.imshow(ground_truth)
+    density_plot = plt.imshow(ground_truth[0])
     plt.figure(2)
-    original = plt.imshow(data)
+    original = plt.imshow(data[0])
     plt.show()
 
     
