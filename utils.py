@@ -16,10 +16,14 @@ def build_density_map(image, locations, sigma=3, scale=1.0):
 
     h, w = image.shape
 
+    # Downsample density map according to given scale
+    scaled_w = int(round(scale*w))
+    scaled_h = int(round(scale*h))
+
     # Initialize x and y indices of each image location separately
-    x_idxs = np.arange(w)
+    x_idxs = np.arange(int(round(scaled_w)))
     #x_idxs = np.repeat([x_idxs], h, axis=0)
-    y_idxs = np.arange(h)
+    y_idxs = np.arange(int(round(scaled_h)))
     #y_idxs = np.transpose(np.repeat([y_idxs], w, axis=0))
 
     # Get x and y distances from each location
@@ -27,12 +31,12 @@ def build_density_map(image, locations, sigma=3, scale=1.0):
     y_density = []
     for loc in locations:
         # Get pdf value for x & y components of each pixel
-        x_comp = norm.pdf(x_idxs, int(round(loc[0])), sigma)
-        y_comp = norm.pdf(y_idxs, int(round(loc[1])), sigma)
+        x_comp = norm.pdf(x_idxs, int(round(scale*loc[0])), sigma)
+        y_comp = norm.pdf(y_idxs, int(round(scale*loc[1])), sigma)
 
         # Repeat so dimensions are the same as original image
-        x_comp = np.repeat([x_comp], h, axis=0)
-        y_comp = np.transpose(np.repeat([y_comp], w, axis=0))
+        x_comp = np.repeat([x_comp], scaled_h, axis=0)
+        y_comp = np.transpose(np.repeat([y_comp], scaled_w, axis=0))
 
         # Store in list of density functions for each object
         x_density.append(x_comp)
@@ -88,7 +92,7 @@ if __name__ == "__main__":
     mat = scipy.io.loadmat(label_path)
     locations = mat['frame'][0,0]['loc'][0,0][:,:-1]
 
-    density_map = build_density_map(img, locations)
+    density_map = build_density_map(img, locations, scale=0.5)
 
     import matplotlib.pyplot as plt
     plt.figure(1)
