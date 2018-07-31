@@ -33,7 +33,7 @@ class UCSDPedsDataset(Dataset):
         ped_locations = self.label_data[idx][0,0]['loc'][:,:-1]
 
         # Build ground truth density map for given image
-        ground_truth = build_density_map(data, ped_locations)
+        ground_truth = build_density_map(data, ped_locations, scale=1/4)
 
         # The pytorch model expects 4D Tensors
         data = np.expand_dims(data, axis=0)
