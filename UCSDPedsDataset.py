@@ -24,17 +24,20 @@ class UCSDPedsDataset(Dataset):
                                 if image_file[-4:]=='.png' ])
         self.image_data = np.array([ io.imread(os.path.join(image_path, image_file)) for image_file in image_files ])
 
-        # generate ground truth density maps
-
     def __len__(self):
         return len(self.label_data)
 
     def __getitem__(self, idx):
+        # Get image and corresponding pedestrian locations
         data = self.image_data[idx]
         ped_locations = self.label_data[idx][0,0]['loc'][:,:-1]
 
-        # build ground truth density map for given image
+        # Build ground truth density map for given image
         ground_truth = build_density_map(data, ped_locations)
+
+        # The pytorch model expects 4D Tensors
+        data = np.expand_dims(data, axis=0)
+        ground_truth = np.expand_dims(ground_truth, axis=0)
 
         return data, ground_truth 
 
